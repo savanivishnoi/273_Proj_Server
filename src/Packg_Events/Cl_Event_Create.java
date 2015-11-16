@@ -30,7 +30,7 @@ public class Cl_Event_Create {
      @Produces(SseFeature.SERVER_SENT_EVENTS)
      public EventOutput allEvents(@PathParam("eventtype") String eventtype) {
         final EventOutput eventOutput = new EventOutput();
-        System.out.println("Get event received " + eventtype);
+       // System.out.println("Get event received " + eventtype);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -64,7 +64,6 @@ public class Cl_Event_Create {
      public Response setEvents(@PathParam("eventtype") String eventtype, String input) {
     	 String[] obj_input;
     	 System.out.println(eventtype);
-    	 // wait while the current operation has been processed
     	 
     	 if(eventtype.equals("create")) {
     		 obj_input = input.split(",");
@@ -80,6 +79,21 @@ public class Cl_Event_Create {
     		 obj_input = input.split(",");
     		 operation_data = delete_Call(obj_input[0], obj_input[1]);
 
+    	 } else if(eventtype.equals("write_attributes")) {
+    		 operation_data = input;
+
+    	 } else if(eventtype.equals("observe")) {
+    		 operation_data = (input);
+
+    	 } else if(eventtype.equals("execute")) {
+    		 operation_data = (input);
+
+    	 } else if(eventtype.equals("discover")) {
+    		 operation_data = (input);
+
+    	 }
+    	 else if(eventtype.equals("cancel_observe")) {
+    		 operation_data = (input);    		 
     	 }
     	 operation = eventtype;
     	 return Response.ok("OK", MediaType.TEXT_PLAIN).build();
@@ -97,16 +111,40 @@ public class Cl_Event_Create {
     		curr_date = dateFormat.format(date).toString();
      		MongoClient db_cl = new MongoClient("localhost", 27017);
      		BasicDBObject object = new BasicDBObject();
-     		object.put("_id", arr_input[0]);
+     		object.put("id", arr_input[0]);
      		object.put("client_id", arr_input[1]);
      		object.put("object_id", arr_input[2]);
      		object.put("value", arr_input[3]);
      		object.put("time", curr_date);
      		DBCollection object_val = db_cl.getDB("database_name").getCollection("273_Object_Transaction_Values");	
      		object_val.insert(object);
+    	 } else if (eventtype.equals("notify")) {
+    		 String[] arr_input;
+    		 String curr_date;
+     		 arr_input = input.split(",");
+     		 DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    		 Date date = new Date();
+    		 curr_date = dateFormat.format(date).toString();
+     		 MongoClient db_cl = new MongoClient("localhost", 27017);
+     		 BasicDBObject object = new BasicDBObject();
+     		 object.put("id", arr_input[0]);
+     		 object.put("client_id", arr_input[1]);
+     		 object.put("object_id", arr_input[2]);
+     		 object.put("value", arr_input[3]);
+     		 object.put("time", curr_date);
+     		 DBCollection object_val = db_cl.getDB("database_name").getCollection("273_Object_Transaction_Values");	
+     		 object_val.insert(object);
+     		// System.out.println(input);
+     		 notify_Action(input);
+    	 } else if (eventtype.equals("discover")){
+    		 System.out.println("List of objects "+input);
+    	 } else if (eventtype.equals("execute")){
+    		 System.out.println(input);
     	 }
     	 return Response.ok("OK", MediaType.TEXT_PLAIN).build();
      }
+     
+ 
      
      public String create_Call(String sensor_id, String object_id, String pressure){
 		String id;
@@ -148,6 +186,31 @@ public class Cl_Event_Create {
   		 object_val.remove(query);
     	 return id;
      }
+     public void notify_Action(String input){
+    	 String[] arr_input;
+    	 arr_input = input.split(",");
+    	 if ( arr_input.length > 1){
+    		 switch (arr_input[4]){
+    			 case "-1":
+    				 System.out.println("ALERT: Pressure is less than minimum. Current pressure is "+arr_input[3]);
+    				 break;
+    			 case "1":
+    				 System.out.println("ALERT: Pressure is greater than maximum. Current pressure is "+arr_input[3]);
+    				 break;
+    			 case "100":
+    				 System.out.println("ALERT: Pressure difference is too high. Current pressure is "+arr_input[3]);
+    				 break;
+    	 }
+    	 }
+     }
+     
+    // public String write_Attributes(String input){
+    	/* String[] arr_input;
+    	 arr_input = input.split(",");*/
+    	 
+    	 
+    	 
+  //   }
 
      public String Jsonstr(String key, String value) {
     	 String str = "";
