@@ -34,15 +34,16 @@ public class Bootstrap_Server {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response bootStrap(String input) throws JsonParseException, JsonMappingException, IOException
 	{
+		System.out.println("Inside bs server");
 		ObjectMapper objMap = new ObjectMapper();
 		objMap.setVisibility(PropertyAccessor.ALL, Visibility.ANY);
 		ClientInput clRecord = objMap.readValue(input, ClientInput.class); //deserialize JSON
 		MongoClient db_cl;
 		db_cl = new MongoClient("localhost", 27017);
 		DB db = db_cl.getDB("database_name");
-		DBCollection tab = db.getCollection("273_Boot_Server_assgn1");
+		DBCollection tab = db.getCollection("273_BootStrap_Objects");
 		BasicDBObject nQuery = new BasicDBObject();
-		//System.out.println("row 44");
+		System.out.println("row 44");
 		List<BasicDBObject> ls_srch = new ArrayList<BasicDBObject>();
 		ls_srch.add(new BasicDBObject("client_name", clRecord.client_name));
 		ls_srch.add(new BasicDBObject("manufacturer_id", clRecord.manufacturer_id));

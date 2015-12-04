@@ -38,6 +38,7 @@ public class Class_Main {
 		System.out.println("8. Observe");
 	//	System.out.println("9. Notify");
 		System.out.println("9. Cancel Observation");
+		System.out.println("10. Read all clients");
 		
 		Scanner scan = new Scanner(System.in);
 		int operation = scan.nextInt();
@@ -88,7 +89,10 @@ public class Class_Main {
 			 response = tar1.request(MediaType.TEXT_PLAIN).post(Entity.text(str));
 			 break;
 			 
-		case 5: 
+		case 5:
+			str = "Execute";
+			tar1 = cl1.target("http://localhost:8080/273_Proj_Server/api/events/execute");
+			 response = tar1.request(MediaType.TEXT_PLAIN).post(Entity.text(str));
 			break;
 		case 6:
 			System.out.println("Enter Client ID");
@@ -139,8 +143,11 @@ public class Class_Main {
 			 response = tar1.request(MediaType.TEXT_PLAIN).post(Entity.text(str));
 			 System.out.println("Cancelled Observation");
 			 break;
+		case 10:
+			 tar1 = cl1.target("http://localhost:8080/273_Proj_Server/boot/read_sensors");
+			 response = tar1.request(MediaType.APPLICATION_JSON).get();
 			
-			
+			System.out.println(response.readEntity(String.class));
 		}
 		
 		
