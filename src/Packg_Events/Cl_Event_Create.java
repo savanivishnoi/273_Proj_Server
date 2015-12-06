@@ -358,20 +358,21 @@ public class Cl_Event_Create {
     	 return str;
      }
      public void compare_value(String client_main, String value_main) throws AddressException, MessagingException{
-    	 int diff = 0;
-    	 int curr_diff = 100000;
+    	 int diff = 100000;
+    	 int curr_diff = 0;
     	 int curr_value = Integer.valueOf(value_main);
     	 String alt_client = "";
     	 System.out.println("Inside compare");
     	 for(int i = 0; i < 4; i++){
     		curr_diff = Math.abs(curr_value - Integer.valueOf(clients_ls[i].object_value));
-    		if(curr_diff < diff){
+    		if(curr_diff <= diff){
     			diff = curr_diff; 
     			alt_client = clients_ls[i].object_id;
     		}
     		System.out.println("diff b/w: cl main " + client_main + "value "+ curr_value + " other cl "+clients_ls[i].object_id + "value : "+ clients_ls[i].object_value);
     	 }
-    	  send_email("ALERT: There is a leakage detected between client "+client_main+" and client "+alt_client);
+    	 System.out.println("Alt client  : "+alt_client);
+    	  send_email("ALERT: There is a leakage detected between client:- "+client_main+" and client:- "+alt_client);
     	 
      }
      public void send_email(String input) throws AddressException, MessagingException{
