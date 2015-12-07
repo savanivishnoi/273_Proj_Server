@@ -39,6 +39,7 @@ public class Class_Main {
 	//	System.out.println("9. Notify");
 		System.out.println("9. Cancel Observation");
 		System.out.println("10. Read all clients");
+		System.out.println("11. Read all alerts");
 		
 		Scanner scan = new Scanner(System.in);
 		int operation = scan.nextInt();
@@ -148,6 +149,12 @@ public class Class_Main {
 			 response = tar1.request(MediaType.APPLICATION_JSON).get();
 			
 			System.out.println(response.readEntity(String.class));
+		    break;
+		case 11:
+			tar1 = cl1.target("http://localhost:8080/273_Proj_Server/boot/read_alerts");
+			response = tar1.request(MediaType.APPLICATION_JSON).get();		
+			System.out.println(response.readEntity(String.class));
+			break;
 		}
 		
 		
