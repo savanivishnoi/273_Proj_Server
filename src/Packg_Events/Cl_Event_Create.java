@@ -42,8 +42,7 @@ import org.glassfish.jersey.media.sse.SseBroadcaster;
 @Path("events/{eventtype}")
 public class Cl_Event_Create {
 	static String operation = "empty";
-	static String operation_data = "empty";
-	static int ab = 0;
+	static String operation_data = "empty"; 
 	static client_objects[] clients_ls = new client_objects[] 
 			{
 					new client_objects(), 
@@ -83,7 +82,10 @@ public class Cl_Event_Create {
 	    }
 	}*/
 	 
-     @GET
+  /* Below code will send events to the client operation holds the operation that is to be performed 
+   * on the client side like read, observer etc. operation_data holds the operation details. like client id, values to write etc.
+   *  */
+	@GET
      @Produces(SseFeature.SERVER_SENT_EVENTS)
      public EventOutput allEvents(@PathParam("eventtype") String eventtype) {
         final EventOutput eventOutput = new EventOutput();
@@ -92,16 +94,15 @@ public class Cl_Event_Create {
             @Override
             public void run() {
                 try {
-                	 long threadId = Thread.currentThread().getId();
-                	 System.out.println(threadId+" thread");
+                	// long threadId = Thread.currentThread().getId();
+                	// System.out.println(threadId+" thread");
                 	final OutboundEvent.Builder eventBuilder = new OutboundEvent.Builder();
                     eventBuilder.name(operation);
                     eventBuilder.data(String.class, operation_data);
                     final OutboundEvent event = eventBuilder.build();
                     eventOutput.write(event);
-                    ab++;
-                	operation = "empty";
-                	operation_data = "empty"+ab;
+                    operation = "empty";
+                	operation_data = "empty";
                 } catch (IOException e) {
                     throw new RuntimeException(
                         "Error when writing the event.", e);
@@ -183,8 +184,8 @@ public class Cl_Event_Create {
      		object_val.insert(object);
      		System.out.println("Current Value "+arr_input[3]);
     	 } else if (eventtype.equals("notify")) {
-    		 long threadId = Thread.currentThread().getId();
-        	 System.out.println(threadId+" thread");
+    		// long threadId = Thread.currentThread().getId();
+        	// System.out.println(threadId+" thread");
     		 String[] arr_input;
     		 String curr_date;
      		 arr_input = input.split(",");
@@ -270,12 +271,27 @@ public class Cl_Event_Create {
     	 String[] arr_input;
     	 String[] clients;
     	 String[] clients_list;
+    	 String curr_date;
+    	 DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		 Date date = new Date();
+		 curr_date = dateFormat.format(date).toString();
     	 arr_input = input.split(",");
-    	 if ( arr_input.length > 1){
+    	 MongoClient db_cl = new MongoClient("localhost", 27017);
+  		 DBCollection object_val = db_cl.getDB("database_name").getCollection("273_Alerts");	
+  		 BasicDBObject values = new BasicDBObject();
+  		 
+  		 if ( arr_input.length > 1){
     		 switch (arr_input[4]){
     			 case "-1":
+    				 values.put("id", arr_input[0]);
+    		  		 values.put("pressure_value", arr_input[3]);
+    		  		 values.put("pressure_status",arr_input[4]);
+    		  		 values.put("time", curr_date);
+    		  		object_val.insert(values);
+    		  		 
     				 System.out.println("ALERT: Pressure is less than minimum. Current pressure is "+arr_input[3]);
 				try {
+				
 					send_email("ALERT: Pressure is less than minimum. Current pressure is "+arr_input[3]);
 				} catch (MessagingException e) {
 					// TODO Auto-generated catch block
@@ -283,6 +299,11 @@ public class Cl_Event_Create {
 				}
     				 break;
     			 case "1":
+    				 values.put("id", arr_input[0]);
+			  		 values.put("pressure_value", arr_input[3]);
+			  		 values.put("pressure_status",arr_input[4]);
+			  		 values.put("time", curr_date);
+			  		object_val.insert(values);
     				 System.out.println("ALERT: Pressure is greater than maximum. Current pressure is "+arr_input[3]);
 				try {
 					send_email("ALERT: Pressure is greater than maximum. Current pressure is "+arr_input[3]);
@@ -292,7 +313,7 @@ public class Cl_Event_Create {
 				}
     				 break;
     			 case "100":
-    				 MongoClient db_cl =  new MongoClient("localhost", 27017);
+    			//	 MongoClient db_cl =  new MongoClient("localhost", 27017);
     				 DBCollection tab = db_cl.getDB("database_name").getCollection("273_Mapped_Objects");
     				 BasicDBObject srch = new BasicDBObject();
     				// System.out.println(arr_input[0]+"array");
@@ -372,6 +393,21 @@ public class Cl_Event_Create {
     		System.out.println("diff b/w: cl main " + client_main + "value "+ curr_value + " other cl "+clients_ls[i].object_id + "value : "+ clients_ls[i].object_value);
     	 }
     	 System.out.println("Alt client  : "+alt_client);
+    	 String curr_date;
+    	 DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+		 Date date = new Date();
+		 curr_date = dateFormat.format(date).toString();
+    	
+    	 MongoClient db_cl = new MongoClient("localhost", 27017);
+  		 DBCollection object_val = db_cl.getDB("database_name").getCollection("273_Alerts");	
+  		 BasicDBObject values = new BasicDBObject();
+  		 values.put("id", client_main);
+  		 values.put("pressure_value", curr_value);
+  		 values.put("pressure_status","100");
+  		 values.put("connected_node", alt_client);
+  		 values.put("time", curr_date);
+  		 object_val.insert(values);
+  		 
     	  send_email("ALERT: There is a leakage detected between client:- "+client_main+" and client:- "+alt_client);
     	 
      }
